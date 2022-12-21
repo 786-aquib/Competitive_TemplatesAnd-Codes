@@ -1,0 +1,114 @@
+#include<bits/stdc++.h>
+#define endl "\n"
+using namespace std;
+#define            int            long long int
+#define            vi             vector<int>
+#define            vp             vector<pair<int,int>>
+#define            pb             push_back
+#define            all(v)         v.begin(),v.end()
+#define            fl(i,a,n)      for(int i = (a); i < (n); i++)
+#define            F              first
+#define            S              second
+#define            pb             push_back 
+#define            sz(x)          (int)x.size()
+#define            mod            998244353
+int nxt(){int x; cin >> x; return x;}
+/*--- debuger --- */    
+void __print(int32_t x) {cerr << x;} void __print(long x) {cerr << x;} void __print(long long x) {cerr << x;} void __print(unsigned x) {cerr << x;} void __print(unsigned long x) {cerr << x;} void __print(unsigned long long x) {cerr << x;} void __print(float x) {cerr << x;} 
+void __print(double x) {cerr << x;} void __print(long double x) {cerr << x;} void __print(char x) {cerr << '\'' << x << '\'';} void __print(const char *x) {cerr << '\"' << x << '\"';} void __print(const string &x) {cerr << '\"' << x << '\"';} void __print(bool x) {cerr << (x ? "true" : "false");}
+template<typename T, typename V> void __print(const pair<T, V> &x) {cerr << '{'; __print(x.first); cerr << ','; __print(x.second); cerr << '}';}
+template<typename T> void __print(const T &x) {int f = 0; cerr << '{'; for (auto &i : x) cerr << (f++ ? "," : ""), __print(i); cerr << "}";}
+void _print() {cerr << "]\n";}
+template <typename T, typename... V> void _print(T t, V... v) {__print(t); if (sizeof...(v)) cerr << ", "; _print(v...);}
+ 
+#ifndef ONLINE_JUDGE
+#define debug(x...) cerr << "[" << #x << "] = ["; _print(x)
+#else
+#define debug(x...)
+#endif
+class SGTree {
+  vector<int> seg;
+public:
+  SGTree(int n) {
+    seg.resize(4 * n + 1);
+  }
+  void build(int ind, int low, int high, int arr[]) {
+    if (low == high) {
+      seg[ind] = arr[low];
+      return;
+    }
+    int mid = (low + high) / 2;
+    build(2 * ind + 1, low, mid, arr);
+    build(2 * ind + 2, mid + 1, high, arr);
+    seg[ind] = min(seg[2 * ind + 1], seg[2 * ind + 2]);
+  }
+  int query(int ind, int low, int high, int l, int r) {
+    // no overlap
+    // l r low high or low high l r
+    if (r < low || high < l) return INT_MAX;
+
+    // complete overlap
+    // [l low high r]
+    if (low >= l && high <= r) return seg[ind];
+    int mid = (low + high) >> 1;
+    int left = query(2 * ind + 1, low, mid, l, r);
+    int right = query(2 * ind + 2, mid + 1, high, l, r);
+    return min(left, right);
+  }
+  void update(int ind, int low, int high, int i, int val) {
+    if (low == high) {
+      seg[ind] = val;
+      return;
+    }
+    int mid = (low + high) >> 1;
+    if (i <= mid) update(2 * ind + 1, low, mid, i, val);
+    else update(2 * ind + 2, mid + 1, high, i, val);
+    seg[ind] = min(seg[2 * ind + 1], seg[2 * ind + 2]);
+  }
+};
+void aquib(){
+   int n; cin>>n;
+   int arr[n];
+   fl(i,0,n) cin>>arr[i];
+   SGTree sg1(n);
+   sg1.build(0,0,n-1,arr);
+
+
+
+   int arr1[n];
+   fl(i,0,n) cin>>arr1[i];
+
+   SGTree sg2(n);
+   sg2.build(0,0,n-1,arr1);
+
+   int q; cin>>q;
+   while(q--){
+    int type; cin>>type;
+    if(type == 1){
+      int l,r; cin>>l>>r;
+      int l1,r1; cin>>l1>>r1;
+      cout<<min(sg1.query(0,0,n-1,l,r),sg2.query(0,0,n-1,l1,r1))<<endl;
+    }
+    else{
+      int arrNo, i, val; cin>>arrNo>>i>>val;
+        if(arrNo == 1){
+          sg1.update(0,0,n-1,i,val);
+          arr[i] = val;
+        }
+        else{
+          sg2.update(0,0,n-1,i,val);
+          arr1[i] = val;
+        }
+    }
+   }
+}
+int32_t main(){
+   int t=1;
+   cin>>t;
+   for(int i = 1; i <= t; ++i){
+    // cout << "Case #" << i << ": ";
+   
+         aquib();
+    }
+    return 0;
+}
